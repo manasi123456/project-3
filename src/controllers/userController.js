@@ -40,8 +40,8 @@ const userCreation = async function (req, res) {
             return res.status(400).send({ status: false, message: "password is required" })
         }
 
-        if(!validator.validString(address)){
-            return res.status(400).send({ status: false, message: "Address cannot be empty if key is mentioned." })
+        if(!validator.validAddress(address)){
+            return res.status(400).send({ status: false, message: "Address cannot be empty if it is mentioned." })
         };
 
        
@@ -129,7 +129,7 @@ const loginUser = async function (req, res) {
         const token = await jwt.sign({
             userId: id,
             iat: Math.floor(Date.now() / 1000), //time of issuing the token.
-            exp: Math.floor(Date.now() / 1000) + 00 * 01 * 00 //setting token expiry time limit.
+            exp: Math.floor(Date.now() / 1000) + 60 * 60 * 24 //setting token expiry time limit.
         }, secretKey)
 
         //setting token in response header.

@@ -1,6 +1,6 @@
 const mongoose = require("mongoose")
 
-const userModel = new mongoose.Schema({
+const userSchema = new mongoose.Schema({
 
     title: {
         type: String,
@@ -30,7 +30,7 @@ const userModel = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-        name: {type: String, min: 8 , max: 20},
+        name: {type: String, min: 8 , max: 15},
         trim:true
     },
     address: {
@@ -45,10 +45,8 @@ const userModel = new mongoose.Schema({
         pincode: {
             type: String,
             trim:true
-   
-        }
-   
+          }
     }
 
 },{timestamps:true})
-module.exports = mongoose.model("userbook", userModel)
+module.exports = mongoose.model("userbooks", userSchema)
