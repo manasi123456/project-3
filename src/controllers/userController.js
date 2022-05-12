@@ -70,15 +70,15 @@ const userCreation = async function (req, res) {
             return res.status(400).send({ status: false, message: "Phone number already used" })
         }
 
+         //validating phone number of 10 digits only by using RegEx.
+         if (!/^[0-9]{10}$/.test(phone))
+         return res.status(400).send({ status: false, message: "Invalid Phone number.Phone number must be of 10 digits." })
+
         //searching email in DB to maintain uniqueness.
         const verifyEmail = await userModel.findOne({ email: email })
         if (verifyEmail) {
             return res.status(400).send({ status: false, message: "Email id is already used" })
         }
-
-        //validating phone number of 10 digits only by using RegEx.
-        if (!/^[0-9]{10}$/.test(phone))
-            return res.status(400).send({ status: false, message: "Invalid Phone number.Phone number must be of 10 digits." })
 
         //validating email using RegEx.
         if (!/^\w+([\.-]?\w+)@\w+([\.-]?\w+)(\.\w{2,3})+$/.test(email))

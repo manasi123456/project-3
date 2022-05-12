@@ -22,7 +22,7 @@ const addReview = async function (req, res) {
             return res.status(400).send({ status: false, message: "Reviewer's name cannot be a number." })
         }
 
-        if (!validator.validString(reviewedBy)) {
+        if (!validator.isValid(reviewedBy)) {
             return res.status(400).send({ status: false, message: "Reviewer's name is required" })
         }
         if (!validator.isValid(rating)) {
@@ -54,7 +54,7 @@ const addReview = async function (req, res) {
 
         const saveReview = await reviewModel.create(requestReviewBody)
         if (saveReview) {
-            await bookModel.findOneAndUpdate({ _id: params }, { $inc: { reviews: 1 } })
+            await bookModel.findOneAndUpdate({ _id: params }, { $inc: { review: 1 } })
         }
         const response = await reviewModel.findOne({ _id: saveReview._id }).select({
             __v: 0,
@@ -96,6 +96,11 @@ const updateReview = async function (req, res) {
             if (!validator.validString(reviewedBy)) {
                 return res.status(400).send({ status: false, message: "Reviewer's name is missing ! Please provide the name to update." })
             };
+
+            if (!isNaN(reviewedBy)) {
+                return res.status(400).send({ status: false, message: "Reviewer's name cannot be a number." })
+            }
+    
         }
 
         //finding book and review on which we have to update.
@@ -178,7 +183,7 @@ const deleteReview = async function (req, res) {
                 const deleteReviewDetails = await reviewModel.findOneAndUpdate({ _id: reviewParams }, { isDeleted: true, deletedAt: new Date() }, { new: true })
 
                 if (deleteReviewDetails) {
-                    await bookModel.findOneAndUpdate({ _id: bookParams },{$inc:{ reviews: -1 }})
+                    await bookModel.findOneAndUpdate({ _id: bookParams },{$inc:{ review: -1 }})
                 }
                 return res.status(200).send({ status: true, message: "Review deleted successfully."})
 

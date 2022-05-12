@@ -10,6 +10,12 @@ const bookCreation = async function (req, res) {
         let requestBody = req.body;
         const { title, excerpt, userId, ISBN, category, subcategory, releasedAt } = requestBody
 
+
+         //Validation starts
+         if (!validator.isValidRequestBody(requestBody)) { //for empty req body.
+            return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide book details' })
+        }
+
         //Authentication
         if (userId != req.userId) {
             return res.status(403).send({
@@ -18,10 +24,7 @@ const bookCreation = async function (req, res) {
             })
         }
 
-        //Validation starts
-        if (!validator.isValidRequestBody(requestBody)) { //for empty req body.
-            return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide book details' })
-        }
+       
 
         if (!validator.isValid(title)) {
             return res.status(400).send({ status: false, message: "Title must be present" })
@@ -109,17 +112,6 @@ const fetchAllBooks = async function (req, res) {
                 obj.subcategory = subcategory
             }
             obj.isDeleted = false
-
-            //Authorizing user --> If not then won't be able to fetch books of someone else's.
-            const check = await bookModel.findOne(obj)
-            if (check) {
-                if (check.userId != req.userId) {
-                    return res.status(401).send({
-                        status: false,
-                        message: "Unauthorized access."
-                    })
-                }
-            }
 
             //Searching books according to the request 
             const books = await bookModel.find(obj).select({
@@ -234,6 +226,10 @@ const updateBookDetails = async function (req, res) {
             if (!validator.validString(releasedAt)) {
                 return res.status(400).send({ status: false, message: "Released date is missing ! Please provide the released date details to update." })
             };
+
+            if (!validateDate(releasedAt, responseType = 'boolean')) {
+                return res.status(400).send({ status: false, message: `Invalid date format. Please provide date as 'YYYY-MM-DD'.` })
+            }
         } //validation ends.
 
         //searching book in which we want to update the details.
