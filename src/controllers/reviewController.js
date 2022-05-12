@@ -1,6 +1,6 @@
 const reviewModel = require('../models/reviewModel')
-const validator = require('../validators/validator')
-const bookModel = require('../models/bookModel')
+const validator = require('../validator/validator')
+const bookModel = require('../models/booksModel')
 
 //Adding review for a specific book.
 const addReview = async function (req, res) {
