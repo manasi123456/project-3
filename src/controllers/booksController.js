@@ -90,7 +90,7 @@ const bookCreation = async function (req, res) {
         return res.status(500).send({ status: false, message: "Something went wrong", Error: err.message })
     }
 }
-/*const fetchAllBooks = async function (req, res) {
+const fetchAllBooks = async function (req, res) {
     try {
         const queryParams = req.query
         console.log(queryParams);
@@ -125,14 +125,14 @@ const bookCreation = async function (req, res) {
             //Authorizing user --> If not then won't be able to fetch books of someone else's.
             const check = await bookModel.findOne(obj)
             console.log(check);
-            if (check) {
+           /* if (check) {
                 if (check.userId != req.userId) {
                     return res.status(401).send({
                         status: false,
                         message: "Unauthorized access."
                     })
                 }
-            }
+            }*/
 
             //Searching books according to the request 
             const books = await bookModel.find(obj).select({
@@ -168,49 +168,74 @@ const bookCreation = async function (req, res) {
     } catch (err) {
         return res.status(500).send({ status: false, Error: err.message })
     }
-}*/
+}
 
-const fetchAllBooks = async function (req, res) {
+/*const fetchAllBooks = async function (req, res) {
     try {
       let filterQuery = { isDeleted: false, deletedAt: null };
       let queryParams = req.query;
       const { userId, category, subcategory } = queryParams;
-     /*if(!validator.isValid(userId) || !validator.isValid(category) || !validator.isValid(subcategory)){
+
+     /*if(!validator.isValid(userId)||!validator.validString(category) ||!validator.isValid(subcategory)){
         return res.status(400).send({ status: false, message: "parameter is required" })
     }
    if(!validator.isValidObjectId(userId)){
     return res.status(400).send({ status: false, message: "Invalid userId" })
    }
-   /*if(!validator.isValid(category)){
+if(Object.keys(queryParams).length==0) return res.status(400).send({status:false,msg:"query is not present"})
+
+
+
+
+
+
+   
+  /* if(!validator.isValid(category)){
     return res.status(400).send({ status: false, message: "category is required" })
 }
 if(!validator.isValid(subcategory)){
     return res.status(400).send({ status: false, message: "subcategory is required" })
-}*/
+}
      
       if (validator.isValidRequestBody(queryParams)) {
         const { userId, category, subcategory } = queryParams;
-        if (validator.isValid(userId) && validator.isValidObjectId(userId)) {
-          filterQuery["userId"] = userId;
+        if (!validator.isValid(userId) && !validator.isValidObjectId(userId)) {
+            return res.status(400).send({ status: false, message: "parameter is required" })         
         }
+        else
+        {
+            filterQuery["userId"] = userId;
+        }
+
         if (validator.isValid(category)) {
-          filterQuery["category"] = category.trim();
+            if (!validator.isValid(category) && !validator.isValidObjectId(category)) {
+                return res.status(400).send({ status: false, message: "parameter is required" })         
+            }
+            else
+            {
+                filterQuery["category"] = category;
+            }  
         }
         
         if (validator.isValid(subcategory)) {
-          const subcatArr = subcategory 
-            .trim()
-            .split(",")
-            .map((subcat) => subcat.trim());
-          filterQuery["subcategory"] = { $all: subcatArr };
-        }
-      }
-      console.log(filterQuery)
-        
+            if (!validator.isValid(category) && !validator.isValidObjectId(category)) {
+                return res.status(400).send({ status: false, message: "parameter is required" })         
+            }
+            else{
+                const subcatArr = subcategory 
+                .trim()
+                .split(",")
+                .map((subcat) => subcat.trim());
+              filterQuery["subcategory"] = { $all: subcatArr };
 
+
+            }
+        }
+          
       const book = await bookModel.find({$or:[{userId:userId},{category:category},{subcategory:subcategory}]}).sort({
         title: 1
     });
+    console.log(book);
     const countBooks = book.length
 
     //If no found by the specific combinations revert error msg ~-> No books found.
@@ -224,11 +249,11 @@ if(!validator.isValid(subcategory)){
         })
     }
 } 
-  
+}
     catch (error) {
       res.status(500).send({ status: false, Error: error.message });
     }
-  };
+  }*/
   /*const updateBookById = async (req, res) => {
     try {
       let data=req.body;
@@ -271,10 +296,15 @@ if(!validator.isValid(subcategory)){
 
   const updateBookDetails = async function (req, res) {
     try {
-        const params = req.params.bookId
+        const params = req.params.bookId;
         const requestUpdateBody = req.body
         const userIdFromToken = req.userId
         const { title, excerpt, releasedAt, ISBN } = requestUpdateBody;
+         
+        if (!validator.isValidRequestBody(req.params)) {
+            return res.status(400).send({status: false, message: "Invalid request parameters. Please provide query details"});
+          }
+
 
         //validation starts.
        if (!validator.isValidObjectId(userIdFromToken)) {
@@ -302,14 +332,9 @@ if(!validator.isValid(subcategory)){
             if (!validator.validString(ISBN)) {
                 return res.status(400).send({ status: false, message: "ISBN is missing ! Please provide the ISBN details to update." })
             };
-            if (!validator.validString(releasedAt)) {
+            if (!validator.validString(releasedAt) &&  (!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt))) {
                 return res.status(400).send({ status: false, message: "Released date is missing ! Please provide the released date details to update." })
-            };
-            if(!/^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$/.test(releasedAt)){
- 
-                return res.status(400).send({ status: false, message: "Invalid Date Format" })
             }
-
 
         } //validation ends.
 
@@ -355,6 +380,7 @@ const fetchBooksById = async function (req, res) {
     try {
         const bookParams = req.params.bookId;
         //validating bookId after accessing it from the params.
+        
         if (!validator.isValidObjectId(bookParams)) {
             return res.status(400).send({ status: false, message: "Inavlid bookId." })
         }
@@ -377,15 +403,16 @@ const fetchBooksById = async function (req, res) {
         }
 
         //Accessing the reviews of the specific book which we got above, -> In reviewsData key sending the reviews details of that book.
-        const fetchReviewsData = await reviewModel.find({ bookId: bookParams, isDeleted: false }).select({ deletedAt: 0, isDeleted: 0, createdAt: 0, __v: 0, updatedAt: 0 }).sort({
-            reviewedBy: 1
+        const fetchReviewsData = await reviewModel.find({ bookId: bookParams, isDeleted: false }).select({ deletedAt: 0, isDeleted: 0, createdAt: 0, __v: 0, updatedAt: 0 ,review:0}).sort({
+            reviewedBy:1
         })
+       
 
         let reviewObj = findBook.toObject()
         if (fetchReviewsData) {
             reviewObj['reviewsData'] = fetchReviewsData
         }
-
+       //review=(fetchReviewsData.reviewedBy).length;
         return res.status(200).send({ status: true, message: "Book found Successfully.", data: reviewObj })
     } catch (err) {
         return res.status(500).send({ status: false, Error: err.message })
@@ -394,7 +421,7 @@ const fetchBooksById = async function (req, res) {
 const deleteBook = async function (req, res) {
     try {
         const params = req.params.bookId; //accessing the bookId from the params.
-
+        
         //validation for the invalid params.
         if (!validator.isValidObjectId(params)) {
             return res.status(400).send({ status: false, message: "Inavlid bookId." })
@@ -427,33 +454,6 @@ const deleteBook = async function (req, res) {
         return res.status(500).send({ status: false, Error: err.message })
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 module.exports.bookCreation=bookCreation;
 module.exports.fetchAllBooks=fetchAllBooks;
 module.exports.updateBookDetails=updateBookDetails;
