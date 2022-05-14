@@ -160,7 +160,9 @@ const fetchBooksById = async function (req, res) {
         const findBook = await bookModel.findOne({
             _id: bookParams,
             isDeleted: false
-        })
+        }).lean();
+        //console.log(findBook);
+        
         if (!findBook) {
             return res.status(404).send({ status: false, message: `Book does not exist or is already been deleted for this ${bookParams}.` })
         }
@@ -177,13 +179,18 @@ const fetchBooksById = async function (req, res) {
         const fetchReviewsData = await reviewModel.find({ bookId: bookParams, isDeleted: false }).select({ deletedAt: 0, isDeleted: 0, createdAt: 0, __v: 0, updatedAt: 0 }).sort({
             reviewedBy: 1
         })
+       findBook['reviewsData']=fetchReviewsData;
+         console.log(findBook);     
 
-        let reviewObj = findBook.toObject()
+
+
+      /*  let reviewObj = findBook.toObject()
+        console.log(reviewObj)
         if (fetchReviewsData) {
             reviewObj['reviewsData'] = fetchReviewsData
-        }
-
-        return res.status(200).send({ status: true, message: "Book found Successfully.", data: reviewObj })
+        }*/
+        
+        return res.status(200).send({ status: true, message: "Book found Successfully.", data: findBook })
     } catch (err) {
         return res.status(500).send({ status: false, Error: err.message })
     }
@@ -315,3 +322,5 @@ module.exports = {
     updateBookDetails,
     deleteBook
 }
+
+

@@ -22,9 +22,9 @@ const addReview = async function (req, res) {
             return res.status(400).send({ status: false, message: "Reviewer's name cannot be a number." })
         }
 
-        if (!validator.isValid(reviewedBy)) {
+        /*if (!validator.isValid(reviewedBy)) {
             return res.status(400).send({ status: false, message: "Reviewer's name is required" })
-        }
+        }*/
         if (!validator.isValid(rating)) {
             return res.status(400).send({ status: false, message: "Rating is required" })
         }
@@ -53,9 +53,11 @@ const addReview = async function (req, res) {
         requestReviewBody.reviewedAt = new Date();
 
         const saveReview = await reviewModel.create(requestReviewBody)
+
         if (saveReview) {
             await bookModel.findOneAndUpdate({ _id: params }, { $inc: { review: 1 } })
         }
+       console.log(saveReview);
         const response = await reviewModel.findOne({ _id: saveReview._id }).select({
             __v: 0,
             createdAt: 0,
@@ -75,12 +77,13 @@ const updateReview = async function (req, res) {
         const reviewParams = req.params.reviewId
         const requestUpdateBody = req.body
         const { review, rating, reviewedBy } = requestUpdateBody;
+    
 
-        //validation starts.
+    //validation starts.
         if (!validator.isValidObjectId(bookParams)) {
             return res.status(400).send({ status: false, message: "Invalid bookId." })
         }
-        if (!validator.isValidObjectId(reviewParams)) {
+                if (!validator.isValidObjectId(reviewParams)) {
             return res.status(400).send({ status: false, message: "Invalid reviewId." })
         }
         if (!validator.isValidRequestBody(requestUpdateBody)) {
@@ -122,7 +125,7 @@ const updateReview = async function (req, res) {
                 return res.status(400).send({ status: false, message: "Rating cannot be 0. Please provide rating between 1 to 5." })
             }
             if (!validator.validRating(rating)) {
-                return res.status(400).send({ status: false, message: "Rating must be 1,2,3,4 or 5." })
+                return res.status(400).send({ status: false, message: "Rating must be numberical value from 1 to 5" })
             }
             if (!(rating > 0 && rating < 6)) {
                 return res.status(400).send({ status: false, message: "Rating must be in between 1 to 5." })
