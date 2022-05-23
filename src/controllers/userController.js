@@ -18,7 +18,7 @@ const userCreation = async function (req, res) {
 
         //Validation starts
         if (!validator.isValidRequestBody(requestBody)) { //to check the empty request body
-            return res.status(400).send({ ststus: false, message: "Invalid request parameters,Empty body not accepted." })
+            return res.status(400).send({ status: false, message: "Invalid request parameters,Empty body not accepted." })
         }
 
         if (!validator.isValid(title)) {

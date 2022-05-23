@@ -16,13 +16,13 @@ const bookCreation = async function (req, res) {
             return res.status(400).send({ status: false, message: 'Invalid request parameters. Please provide book details' })
         }
 
-        //Authentication
-        if (userId != req.userId) {
-            return res.status(403).send({
-                status: false,
-                message: "Unauthorized access ! User's credentials do not match."
-            })
-        }
+        // //Authentication
+        // if (userId != req.userId) {
+        //     return res.status(403).send({
+        //         status: false,
+        //         message: "Unauthorized access ! User's credentials do not match."
+        //     })
+        // }
 
        
 
@@ -35,6 +35,15 @@ const bookCreation = async function (req, res) {
         if (!validator.isValid(userId)) {
             return res.status(400).send({ status: false, message: "userId must be present" })
         };
+
+         //Authentication
+         if (userId != req.userId) {
+            return res.status(403).send({
+                status: false,
+                message: "Unauthorized access ! User's credentials do not match."
+            })
+        }
+        
         if (!validator.isValid(ISBN)) {
             return res.status(400).send({ status: false, message: "ISBN must be present" })
         };
@@ -224,6 +233,7 @@ const updateBookDetails = async function (req, res) {
             if (!validator.validString(title)) {
                 return res.status(400).send({ status: false, message: "Title is missing ! Please provide the title details to update." })
             }
+
             if (!validator.validString(excerpt)) {
                 return res.status(400).send({ status: false, message: "Excerpt is missing ! Please provide the Excerpt details to update." })
             };
