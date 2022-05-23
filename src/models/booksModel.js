@@ -45,6 +45,7 @@ require:true
 },
 deletedAt:{
 type:Date
-}
+},
+bookCover:String
 })
 module.exports=mongoose.model('book',newBook)
